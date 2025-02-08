@@ -10,6 +10,39 @@ env:
     REGISTRY: ghcr.io
 
 jobs:
+  frontend:
+    name: Create frontend Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Логин в Docker Registry (выполняется только для событий, кроме pull_request)
+      - name: Login to Docker Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.CI_TOKEN }}
+
+      - name: Build and push frontend
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployments/nginx/prod.Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:latest
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repositoryUrl}}
+
   define-matrix:
     name: Find applications
     runs-on: ubuntu-latest
@@ -89,6 +122,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.repositoryUrl}}
           build-args: APPLICATION_NAME=${{ matrix.application }}
+
   release-create:
     name: Create Release
     runs-on: ubuntu-latest
