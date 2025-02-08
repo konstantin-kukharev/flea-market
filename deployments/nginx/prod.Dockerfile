@@ -7,7 +7,7 @@ WORKDIR /app
 COPY frontend/package*.json ./
 
 # Install dependencies
-RUN npm install --only=prod
+RUN npm install
 
 # Copy everything to the container
 COPY ./frontend .
