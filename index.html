@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaerigate - IT Сообщество Решателей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --primary: #4F46E5;
+            --dark: #1F2937;
+            --darker: #111827;
+            --light: #F9FAFB;
+            --accent: #818CF8;
+        }
+
+        body {
+            background-color: var(--dark); /* Темный фон для всего сайта */
+            color: var(--light); /* Светлый текст */
+        }
+
+        /* Шапка */
+        header {
+            background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* Основной контент */
+        .hero {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: url('pattern.svg') no-repeat center/cover;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fff, #E0E7FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .service-card {
+            background: var(--darker); /* Темная карточка */
+            color: var(--light); /* Светлый текст внутри карточки */
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--dark);
+            color: var(--light);
+        }
+
+        .button {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            background: var(--darker);
+            color: var(--light);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">VAERIGATE</div>
+            <div>
+                <a href="#services" style="color: var(--accent); margin: 0 1rem;">Услуги</a>
+                <a href="#community" style="color: var(--accent); margin: 0 1rem;">Сообщество</a>
+                <a href="#contact" style="color: var(--accent);">Контакты</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Объединяем IT-экспертов<br>для решения сложных задач</h1>
+        <p style="color: var(--accent); font-size: 1.2rem; max-width: 800px; margin: 0 auto;">
+            От кибербезопасности до AI разработки - находим решения любой сложности через коллективный интеллект
+        </p>
+    </section>
+
+    <section id="services">
+        <div class="services-grid">
+            <div class="service-card">
+                <span class="badge">Разработка</span>
+                <h3>Полный цикл разработки</h3>
+                <p>От идеи до релиза: веб, мобильные приложения, десктоп решения</p>
+            </div>
+            
+            <div class="service-card">
+                <span class="badge">Безопасность</span>
+                <h3>Кибербезопасность</h3>
+                <p>Аудит, penetration testing, защита данных и систем</p>
+            </div>
+
+            <div class="service-card">
+                <span class="badge">AI/ML</span>
+                <h3>Искусственный интеллект</h3>
+                <p>ML модели, нейросети, обработка данных и аналитика</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="community">
+        <h2 style="margin-bottom: 1.5rem;">Стань частью сообщества</h2>
+        <p style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
+            Получай эксклюзивные проекты, участвуй в хакатонах, развивай навыки 
+            и находи единомышленников
+        </p>
+        <a href="#contact" class="button">Присоединиться сейчас</a>
+    </section>
+
+    <footer id="contact">
+        <h3 style="margin-bottom: 2rem;">VAERIGATE</h3>
+        <div style="margin-bottom: 2rem;">
+            <a href="mailto:contact@vaerigate.com" style="color: var(--accent); margin: 0 1rem;">Email</a>
+            <a href="#" style="color: var(--accent); margin: 0 1rem;">Telegram</a>
+            <a href="#" style="color: var(--accent); margin: 0 1rem;">GitHub</a>
+        </div>
+        <p>© 2024 Vaerigate Collective. All rights reserved</p>
+    </footer>
+</body>
+</html>

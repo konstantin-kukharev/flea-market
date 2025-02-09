@@ -10,7 +10,7 @@ import { Page } from '@/components/Page.tsx';
 import productSvg from './product.svg';
 
 const httpClient = axios.create({
-  baseURL: 'http://localhost/api',
+  baseURL: 'https://neighborline.ru/api',
   headers: {
     'Content-Type': 'application/json'
   }
