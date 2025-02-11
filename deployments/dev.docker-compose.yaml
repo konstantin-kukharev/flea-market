@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16.6-alpine
+    env_file: "./.env"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - flea-market:/var/lib/postgresql/data
+    ports:
+      - "${LOCAL_PORT_POSTGRES}:${POSTGRES_PORT}"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 40Mb
+  nginx:
+    build:
+      context: ../
+      dockerfile: deployments/nginx/dev.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api_server
+  api_server:
+    container_name: api_server
+    env_file: "./.env"
+    build:
+      context: ../
+      dockerfile: deployments/dev.Dockerfile
+      target: dev-runner
+      args:
+        APPLICATION_NAME: api
+    command: "-a=api_server:${SERVER_PORT} -d=${SERVER_DB_DNS}"
+    volumes:
+      - ./../migrations/:/migrations
+    expose:
+      - ${SERVER_PORT}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 40Mb
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+  frontend:
+    build:
+      context: ../
+      dockerfile: deployments/frontend/dev.Dockerfile
+    expose: 
+      - 5173
+    depends_on:
+      - api_server
+volumes:
+  flea-market:
+    name: flea-market
