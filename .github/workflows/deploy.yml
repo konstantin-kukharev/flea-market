@@ -43,8 +43,8 @@ jobs:
         env:
           IMAGE_REF: ${{ steps.meta.outputs.tags }}
         run: |
-          docker compose --context remote pull
-          docker compose --context remote -f docker-compose.yml up --force-recreate --build -d
+          DOCKER_CONTEXT=remote docker compose pull
+          DOCKER_CONTEXT=remote docker compose -f docker-compose.yml up --force-recreate --build -d
           docker --context remote image prune -f
 
       - name: cleanup
