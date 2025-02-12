@@ -7,9 +7,8 @@ ___
 для корректного деплоя необходимо создать секреты в репозитории
 ```
 - secrets.CI_TOKEN
-- secrets.SSH_USER
-- secrets.SSH_PRIVATE_KEY
-- secrets.SSH_HOST
+- secrets.TELEGRAM_TOKEN # Tg bot token
+- secrets.TELEGRAM_TO # Sending deploy message
 ```
 для сборки тестового окружения используется [go task](https://taskfile.dev)
 ___
