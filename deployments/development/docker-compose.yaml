@@ -1,5 +1,7 @@
 services:
   postgres:
+    build:
+      context: ../../
     image: postgres:16.6-alpine
     env_file: "./.env"
     environment:
@@ -20,7 +22,7 @@ services:
     restart: unless-stopped
   nginx:
     build:
-      context: ../
+      context: ../../
       dockerfile: deployments/development/nginx/Dockerfile
     ports:
       - "80:80"
@@ -30,7 +32,7 @@ services:
     container_name: api_server
     env_file: "./.env"
     build:
-      context: ../
+      context: ../../
       dockerfile: deployments/development/gobuild.Dockerfile
       target: dev-runner
       args:
@@ -43,6 +45,140 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+# DEBUG
+  grafana:
+      build:
+        context: ../../
+      image: "grafana/grafana-oss:10.2.2"
+      ports:
+        - 3000:3000
+      volumes:
+        - deployments/development/grafana:/etc/grafana
+      depends_on:
+        postgres:
+          condition: service_healthy
+      links:
+          - postgres
+      user: "root"
+      environment:
+        # Uncomment GF_SERVER_DOMAIN, GF_SERVER_ROOT_URL for using reserve proxy
+        #GF_SERVER_DOMAIN: "grafana.domain.example" # change "grafana.domain.example" to your domain
+        #GF_SERVER_ROOT_URL: "https://grafana.domain.example/" # change "grafana.domain.example" to your domain
+        GF_RENDERING_SERVER_URL: "http://grafana-image-renderer:8081/render"
+        GF_RENDERING_CALLBACK_URL: "http://grafana:3000/"
+        GF_UNIFIED_ALERTING_SCREENSHOTS_CAPTURE: "true"
+        GF_LOG_FILTERS: "rendering:debug"
+        # Uncomment for using PostgreSQL (recommended) instead SQLite
+        GF_DATABASE_TYPE: "postgres"
+        GF_DATABASE_HOST: "postgres:5432" # change "postgres:5432" to your PostgreSQL database host and port
+        GF_DATABASE_NAME: "postgres" # change "postgres" to your database name
+        GF_DATABASE_USER: "postgres" # change "postgres" to your database user name
+        GF_DATABASE_PASSWORD: "postgres" # change "postgres" to your database password # or use GF_DATABASE_PASSWORD
+        GF_DATABASE_SSL_MODE: "disable"
+      secrets:
+      - grafana_database_password
+
+  grafana-image-renderer:
+    build:
+      context: ../../
+    image: "grafana/grafana-image-renderer:3.9.0"
+    environment:
+      TZ: "Europe/Moscow"
+
+  prometheus:
+    build:
+      context: ../../
+    image: "prom/prometheus:v2.48.0"
+    ports:
+      - 9090:9090
+    volumes:
+      - deployments/development/prometheus/config.yaml:/etc/prometheus/prometheus.yaml:ro
+      - deployments/development/web/config.yaml:/etc/prometheus/web-config.yaml:ro
+      - prometheus-data:/prometheus
+    user: "root"
+    secrets:
+      - node_exporter_password
+      - grafana_prometheus_password
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yaml"
+      - "--web.config.file=/etc/prometheus/web-config.yaml"
+      - "--storage.tsdb.retention.time=7d"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: stop-first
+
+  pushgateway:
+    build:
+      context: ../../
+    image: "prom/pushgateway:v1.6.2"
+    ports:
+      - 9091:9091
+    volumes:
+      - deployments/development/web/config.yaml:/etc/prometheus/web-config.yaml:ro
+    command:
+      - "--web.config.file=/etc/prometheus/web-config.yaml"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: start-first
+
+  loki:
+    build:
+      context: ../../
+    image: "grafana/loki:2.9.0"
+    volumes:
+      - deployments/development/loki/config.yaml:/etc/loki/loki.yaml:ro
+      - loki-data:/loki
+    command: 
+      - "--config.file=/etc/loki/loki.yaml"
+    user: "root"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: stop-first
+
+  promtail:
+    build:
+      context: ../../
+    image: "grafana/promtail:2.9.0"
+    volumes:
+      - deployments/development/promtail/config.yaml:/etc/promtail/promtail.yaml:ro
+      - promtail-data:/var/promtail
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+    environment:
+      HOST_HOSTNAME: "{{.Node.Hostname}}"
+    command:
+      - "--config.file=/etc/promtail/promtail.yaml"
+      - "--config.expand-env=true"
+    deploy:
+      mode: global
+      update_config:
+        order: stop-first
+        
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "14268:14268"
+      - "16686:16686"
+
+# https://docs.docker.com/engine/reference/commandline/secret_create/
+secrets:
+ grafana_database_password:
+   file: secret/grafana_database_pass
+ node_exporter_password:
+   file: secret/node_exporter_pass
+ grafana_prometheus_password:
+   file: secret/prometheus_pass
+
 volumes:
+  grafana-data:
+  loki-data:
+  promtail-data:
+  prometheus-data:
   flea-market:
-    name: flea-market

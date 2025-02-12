@@ -13,6 +13,7 @@ services:
     depends_on:
       - api_server
     command: "-g daemon off;"
+    restart: unless-stopped
 
   api_server:
     image: ghcr.io/konstantin-kukharev/api:latest
@@ -21,3 +22,4 @@ services:
     command: "-a=api_server:${SERVER_PORT}"
     expose:
       - ${SERVER_PORT}
+    restart: unless-stopped
