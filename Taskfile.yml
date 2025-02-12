@@ -10,6 +10,7 @@ tasks:
     cmds:
       - mkdir -p ./.runtime
       - rm -f ./.runtime/*
+      - cp deployments/production/.env ./.runtime/.env
     silent: true
   test:
     deps: [clear]
@@ -21,6 +22,7 @@ tasks:
     deps: [lint, clear, test]
     cmds:
       - go build -o ./.runtime/api ./cmd/api/*.go
+      - go build -o ./.runtime/releaser ./cmd/releaser/*.go
     silent: true
   run-dev:
     cmds:
