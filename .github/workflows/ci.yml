@@ -169,6 +169,8 @@ jobs:
     needs:
       - release-create
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Send event
         run: |
           rel=$(git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges)
