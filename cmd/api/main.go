@@ -2,6 +2,7 @@ package main
 
 import (
 	"flea-market/cmd/api/handler"
+	"log"
 	"net/http"
 	"time"
 
@@ -19,5 +20,6 @@ func main() {
 		ReadHeaderTimeout: 1 * time.Second,
 	}
 
-	s.ListenAndServe()
+	err := s.ListenAndServe()
+	log.Fatal(err.Error())
 }

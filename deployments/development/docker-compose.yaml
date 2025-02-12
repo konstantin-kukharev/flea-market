@@ -18,15 +18,10 @@ services:
     ports:
       - "${LOCAL_PORT_POSTGRES}:${POSTGRES_PORT}"
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
-          memory: 40Mb
   nginx:
     build:
       context: ../
-      dockerfile: deployments/nginx/dev.Dockerfile
+      dockerfile: deployments/development/nginx/Dockerfile
     ports:
       - "80:80"
     depends_on:
@@ -36,33 +31,18 @@ services:
     env_file: "./.env"
     build:
       context: ../
-      dockerfile: deployments/dev.Dockerfile
+      dockerfile: deployments/development/gobuild.Dockerfile
       target: dev-runner
       args:
         APPLICATION_NAME: api
     command: "-a=api_server:${SERVER_PORT} -d=${SERVER_DB_DNS}"
-    volumes:
-      - ./../migrations/:/migrations
     expose:
       - ${SERVER_PORT}
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 40Mb
     links:
       - postgres
     depends_on:
       postgres:
         condition: service_healthy
-  frontend:
-    build:
-      context: ../
-      dockerfile: deployments/frontend/dev.Dockerfile
-    expose: 
-      - 5173
-    depends_on:
-      - api_server
 volumes:
   flea-market:
     name: flea-market

@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: deployments/nginx/prod.Dockerfile
+          file: deployments/production/nginx/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:latest
@@ -114,7 +114,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: deployments/Dockerfile
+          file: deployments/production/gobuild.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:latest
@@ -162,3 +162,16 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           body: ${{ steps.release-notes.outputs.RELEASE_BODY }}
+
+  alow_to_deploy:
+    name: Send deploy button
+    runs-on: ubuntu-latest
+    needs:
+      - release-create
+    steps:
+      - name: Send event
+        run: |
+          curl -X POST \
+          -F 'text="новый релиз ${{ github.ref }}\r\n${{steps.release-notes.outputs.RELEASE_BODY }}\r\nSee changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref }}"' \
+          -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.ref }}","callback_data":"deploy|${{ github.ref }}"}]],"selective":true}' \
+          https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}

@@ -11,20 +11,22 @@ tasks:
       - mkdir -p ./.runtime
       - rm -f ./.runtime/*
     silent: true
+  test:
+    deps: [clear]
+    cmds:
+      - go test -cover ./... > ./.runtime/test.log
+      - go test -race ./... >> ./.runtime/test.log
+    silent: true
   build:
-    deps: [lint, clear]
+    deps: [lint, clear, test]
     cmds:
       - go build -o ./.runtime/api ./cmd/api/*.go
     silent: true
-  test-cover:
-    cmds:
-      - go test -cover -race ./... > ./.runtime/test.log
-    silent: true
   run-dev:
     cmds:
-      - docker-compose -f ./deployments/dev.docker-compose.yaml up -d --build
+      - docker-compose -f ./deployments/development/docker-compose.yaml up -d --build
   stop-dev:
     cmds:
-      - docker-compose -f ./deployments/dev.docker-compose.yaml down --remove-orphans
+      - docker-compose -f ./deployments/development/docker-compose.yaml down --remove-orphans
       - docker volume prune --force
       - docker volume rm flea-market --force
