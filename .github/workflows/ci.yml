@@ -171,7 +171,8 @@ jobs:
     steps:
       - name: Send event
         run: |
+          rel=$(git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges)
           curl -X POST \
-          -F 'text="новый релиз ${{ github.ref }}\r\n${{steps.release-notes.outputs.RELEASE_BODY }}\r\nSee changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref }}"' \
+          -F 'text="новый релиз ${{ github.ref }}\r\n$rel\r\nSee changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref }}"' \
           -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.ref }}","callback_data":"deploy|${{ github.ref }}"}]],"selective":true}' \
           https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}
