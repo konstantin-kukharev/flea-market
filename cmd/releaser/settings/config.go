@@ -2,10 +2,7 @@ package settings
 
 import (
 	"os"
-	"path/filepath"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -32,16 +29,6 @@ func NewConfig() *Config {
 }
 
 func (c *Config) WithEnv() error {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		return err
-	}
-
-	err = godotenv.Load(filepath.Join(dir, ".env"))
-	if err != nil {
-		return err
-	}
-
 	if botToken := os.Getenv("TELEGRAM_BOT_TOKEN"); botToken != "" {
 		c.Telegram.Token = botToken
 	}

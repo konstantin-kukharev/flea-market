@@ -87,9 +87,9 @@ jobs:
       fail-fast: false
       matrix:
         application: ${{ fromJSON(needs.define-matrix.outputs.application) }}
-        # не собираем приложение pool
+        # не собираем приложение releaser
         exclude:
-          - application: pool
+          - application: releaser
     permissions:
       contents: read
       packages: write

@@ -42,7 +42,7 @@ func main() {
 				if !ok {
 					return
 				}
-				l.InfoCtx(ctx, "new message", logger.Field{Key: "message", Value: msg})
+				go NewMessage(ctx, msg, l)
 			default:
 				time.Sleep(1 * time.Millisecond)
 			}
@@ -53,4 +53,8 @@ func main() {
 	gs.AddTask(p)
 	err = gs.Wait()
 	l.ErrorCtx(ctx, err.Error())
+}
+
+func NewMessage(ctx context.Context, msg telegram.UpdatesMessage, l *logger.Logger) {
+	l.InfoCtx(ctx, "new message", logger.Field{Key: "message", Value: msg})
 }
