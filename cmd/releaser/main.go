@@ -6,6 +6,7 @@ import (
 	"flea-market/cmd/releaser/settings"
 	"flea-market/internal/graceful"
 	"flea-market/internal/logger"
+	"fmt"
 	"os"
 	"time"
 )
@@ -29,7 +30,7 @@ func main() {
 	}
 
 	lastUpdate := 0
-	r := make(chan telegram.UpdatesMessage)
+	r := make(chan telegram.ButtonQuery)
 	p := telegram.NewPool(conf.Telegram, conf.PoolTimeout, r, lastUpdate, l)
 
 	go func(ctx context.Context) {
@@ -55,6 +56,9 @@ func main() {
 	l.ErrorCtx(ctx, err.Error())
 }
 
-func NewMessage(ctx context.Context, msg telegram.UpdatesMessage, l *logger.Logger) {
-	l.InfoCtx(ctx, "new message", logger.Field{Key: "message", Value: msg})
+func NewMessage(ctx context.Context, msg telegram.ButtonQuery, l *logger.Logger) {
+	// if msg.Data != "" {}
+	// if msg.From.ID == admin
+	// if msg.Message.Chat.ID == admin && msg.Message.Chat.Type == "private"
+	l.InfoCtx(ctx, fmt.Sprintf("new message ID %d release tag %s", msg.Message.ID, msg.Data))
 }

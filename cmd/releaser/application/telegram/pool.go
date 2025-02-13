@@ -20,7 +20,7 @@ type Pool struct {
 	poolTimeout  time.Duration
 	poolAddr     string
 	lastUpdateID int
-	reportChan   chan<- UpdatesMessage
+	reportChan   chan<- ButtonQuery
 }
 
 // NewPool создает новый пул.
@@ -31,7 +31,7 @@ type Pool struct {
 // r - таймаут запроса с сообщением.
 //
 // Возвращает новый пул.
-func NewPool(t *settings.Telegram, pd time.Duration, rc chan<- UpdatesMessage, lu int, l *logger.Logger) *Pool {
+func NewPool(t *settings.Telegram, pd time.Duration, rc chan<- ButtonQuery, lu int, l *logger.Logger) *Pool {
 	var rt http.RoundTripper
 	rt = http.DefaultTransport
 	rt = roundtripper.NewCompress(rt)
@@ -48,6 +48,30 @@ func NewPool(t *settings.Telegram, pd time.Duration, rc chan<- UpdatesMessage, l
 		reportChan:   rc,
 		lastUpdateID: lu,
 	}
+}
+
+type ButtonQuery struct {
+	ID   string
+	From struct {
+		ID       int    `json:"id"`
+		IsBot    bool   `json:"is_bot"`
+		Username string `json:"username"`
+	} `json:"from"`
+	Message struct {
+		ID   int `json:"message_id"`
+		Date int `json:"date"`
+		From struct {
+			ID       int    `json:"id"`
+			IsBot    bool   `json:"is_bot"`
+			Username string `json:"username"`
+		} `json:"from"`
+		Chat struct {
+			ID       int    `json:"id"`
+			Username string `json:"username"`
+			Type     string `json:"type"`
+		} `json:"chat"`
+	} `json:"message"`
+	Data string `json:"data"`
 }
 
 type RequestGetUpdates struct {
@@ -86,8 +110,9 @@ type UpdatesMessage struct {
 type ResponseGetUpdates struct {
 	OK     bool `json:"ok"`
 	Result []struct {
-		UpdateID int            `json:"update_id"`
-		Message  UpdatesMessage `json:"message"`
+		UpdateID    int            `json:"update_id"`
+		Message     UpdatesMessage `json:"message,omitempty"`
+		ButtonQuery ButtonQuery    `json:"callback_query,omitempty"`
 	} `json:"result"`
 }
 
@@ -107,9 +132,12 @@ func (p *Pool) Run(ctx context.Context) error {
 			if len(u.Result) == 0 {
 				continue
 			}
+
 			for _, res := range u.Result {
 				p.lastUpdateID = res.UpdateID + 1
-				p.reportChan <- res.Message
+				if res.ButtonQuery.ID != "" {
+					p.reportChan <- res.ButtonQuery
+				}
 			}
 		}
 	}

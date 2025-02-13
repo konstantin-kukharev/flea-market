@@ -2,9 +2,8 @@ name: CI
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 env:
     REGISTRY: ghcr.io
@@ -175,6 +174,9 @@ jobs:
         run: |
           rel=$(git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges)
           curl -X POST \
-          -F 'text="новый релиз ${{ github.ref }}\r\n$rel\r\nSee changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref }}"' \
-          -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.ref }}","callback_data":"deploy|${{ github.ref }}"}]],"selective":true}' \
+          -F 'text="новый релиз ${{ github.ref }}
+          $rel
+
+          See changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}"' \
+          -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.event.release.tag_name }}","callback_data":"${{ github.event.release.tag_name }}"}]],"selective":true}' \
           https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}
