@@ -1,0 +1,7 @@
+!.env
+grafana
+loki
+prometheus
+promtail
+web
+debug.docker-compose.yaml

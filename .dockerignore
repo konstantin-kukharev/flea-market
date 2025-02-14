@@ -1,0 +1,8 @@
+deployments
+.git
+.github
+.vscode
+.idea
+*.md
+.cache
+.runtime

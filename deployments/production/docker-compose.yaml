@@ -1,0 +1,25 @@
+services:
+  nginx:
+    image: ghcr.io/konstantin-kukharev/frontend:latest
+    container_name: nginx
+    env_file: "./.env"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/key.key:/etc/nginx/ssl/private.key
+      - ./nginx/crt.crt:/etc/nginx/ssl/certificate.crt
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api_server
+    command: "-g daemon off;"
+    restart: unless-stopped
+
+  api_server:
+    image: ghcr.io/konstantin-kukharev/api:latest
+    container_name: api_server
+    env_file: "./.env"
+    command: "-a=api_server:${SERVER_PORT}"
+    expose:
+      - ${SERVER_PORT}
+    restart: unless-stopped
