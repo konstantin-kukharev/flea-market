@@ -37,8 +37,8 @@ jobs:
           file: deployments/production/nginx/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:${{ github.event.release.tag_name }}
+            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:latest
+            ${{ env.REGISTRY }}/${{ github.repository }}/frontend:${{ github.event.release.tag_name }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
 
@@ -116,8 +116,8 @@ jobs:
           file: deployments/production/gobuild.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:${{ github.event.release.tag_name }}
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.application }}:latest
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.application }}:${{ github.event.release.tag_name }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
           build-args: APPLICATION_NAME=${{ matrix.application }}
