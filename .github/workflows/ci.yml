@@ -38,9 +38,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/frontend:${{ github.event.release.tag_name }}
           labels: |
-            org.opencontainers.image.source=${{ github.repositoryUrl}}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
 
   define-matrix:
     name: Find applications
@@ -107,7 +107,7 @@ jobs:
           password: ${{ secrets.CI_TOKEN }}
 
       # Создаем метаданные и строим образы для каждого приложения
-      # ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:v${{ github.ref_name }}
+      # ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:${{ github.event.release.tag_name }}
       - name: Build and push ${{ matrix.application }}
         if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
@@ -117,9 +117,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.application }}:${{ github.event.release.tag_name }}
           labels: |
-            org.opencontainers.image.source=${{ github.repositoryUrl}}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           build-args: APPLICATION_NAME=${{ matrix.application }}
 
   release-create:
@@ -174,8 +174,9 @@ jobs:
         run: |
           rel=$(git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges)
           curl -X POST \
-          -F 'text="новый релиз ${{ github.ref }}
-          $rel
+          -F 'text="новый релиз ${{ github.event.release.tag_name }}  
+          
+          echo $rel
 
           See changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}"' \
           -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.event.release.tag_name }}","callback_data":"${{ github.event.release.tag_name }}"}]],"selective":true}' \
