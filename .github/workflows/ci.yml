@@ -12,6 +12,7 @@ jobs:
   frontend:
     name: Create frontend Docker Image
     runs-on: ubuntu-latest
+    needs: define-matrix
     permissions:
       contents: read
       packages: write
@@ -127,7 +128,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - define-matrix
-      - ci
     strategy:
       fail-fast: false
       matrix:
@@ -166,6 +166,8 @@ jobs:
     name: Send deploy button
     runs-on: ubuntu-latest
     needs:
+      - frontend
+      - ci
       - release-create
     steps:
       - name: Checkout
@@ -179,6 +181,6 @@ jobs:
           See changes: https://github.com/${{ github.repository }}/releases/tag/${{ github.event.release.tag_name }}"
 
           curl -X POST \
-          -F $text \
+          -F '"$text"' \
           -F 'reply_markup={"inline_keyboard":[[{"text":"Deploy ${{ github.event.release.tag_name }}","callback_data":"${{ github.event.release.tag_name }}"}]],"selective":true}' \
           https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}
