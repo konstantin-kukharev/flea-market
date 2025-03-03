@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: ghcr.io/konstantin-kukharev/frontend:latest
+    image: ghcr.io/konstantin-kukharev/frontend:${RELEASE}
     container_name: nginx
     env_file: "./.env"
     volumes:
@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   api_server:
-    image: ghcr.io/konstantin-kukharev/api:latest
+    image: ghcr.io/konstantin-kukharev/api:${RELEASE}
     container_name: api_server
     env_file: "./.env"
     command: "-a=api_server:${SERVER_PORT}"

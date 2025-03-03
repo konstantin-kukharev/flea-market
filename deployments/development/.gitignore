@@ -5,3 +5,6 @@ prometheus
 promtail
 web
 debug.docker-compose.yaml
+
+nginx/log/*
+!nginx/log/.gitkeep

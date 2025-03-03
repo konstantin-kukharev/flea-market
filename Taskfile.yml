@@ -27,6 +27,8 @@ tasks:
   run-dev:
     cmds:
       - docker-compose -f ./deployments/development/docker-compose.yaml up -d --build
+      - npm i --prefix ./frontend
+      - npm run dev --prefix ./frontend
   stop-dev:
     cmds:
       - docker-compose -f ./deployments/development/docker-compose.yaml down --remove-orphans
