@@ -15,8 +15,6 @@ const httpClient = axios.create({
   }
 });
 
-const detailUrl = function( ID :number) { return `/product/${ID}`; };
-
 interface Paginator {
   limit: number;
   offset: number;
