@@ -1,0 +1,36 @@
+version: '3'
+
+tasks:
+  lint:
+    desc: Run linters using golangci-lint
+    cmds:
+      - golangci-lint run --config .golangci.yml
+    silent: true
+  clear:
+    cmds:
+      - mkdir -p ./.runtime
+      - rm -f ./.runtime/*
+      - cp deployments/production/.env ./.runtime/.env
+    silent: true
+  test:
+    deps: [clear]
+    cmds:
+      - go test -cover ./... > ./.runtime/test.log
+      - go test -race ./... >> ./.runtime/test.log
+    silent: true
+  build:
+    deps: [lint, clear, test]
+    cmds:
+      - go build -o ./.runtime/api ./cmd/api/*.go
+      - go build -o ./.runtime/releaser ./cmd/releaser/*.go
+    silent: true
+  run-dev:
+    cmds:
+      - docker-compose -f ./deployments/development/docker-compose.yaml up -d --build
+      - npm i --prefix ./frontend
+      - npm run dev --prefix ./frontend
+  stop-dev:
+    cmds:
+      - docker-compose -f ./deployments/development/docker-compose.yaml down --remove-orphans
+      - docker volume prune --force
+      - docker volume rm flea-market --force
