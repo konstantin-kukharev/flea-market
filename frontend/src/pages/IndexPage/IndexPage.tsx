@@ -9,7 +9,7 @@ import { Page } from '@/components/Page.tsx';
 import {Product, Card, ProductPhoto} from "@/components/Product/Card";
 
 const httpClient = axios.create({
-  baseURL: 'http://localhost/api',//import.meta.env.BASE_URL,
+  baseURL: 'https://neighborline.ru/api',//import.meta.env.BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
